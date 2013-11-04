@@ -1,0 +1,11 @@
+digraph G {
+	node [shape=box, style=filled, fillcolor=lightgrey, fontname=Helvetica];
+	subgraph _terminals {
+		rank=same;
+		0 1;
+	}
+	node [shape=circle, style=hollow, fontname=Helvetica];
+	A -> 1 [style=dashed, label="0.9"];
+	C -> 3 [style=dashed, label="0.5"];
+	A -> 2 [style=dashed, label="0.8"];
+}

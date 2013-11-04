@@ -9,28 +9,52 @@ package beans;
  */
 public class LoChild {
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
+	/**
+	 * The edge.
 	 */
-	@Override
-	public String toString() {
-		return "LoChild [edge=" + edge + ", next=" + next + "]";
+	private Edge edge;
+
+	/**
+	 * The next.
+	 */
+	private Bind next;
+
+	/**
+	 * @param edge
+	 *            the edge
+	 * @param next
+	 *            the next
+	 */
+	public LoChild(Edge edge, Edge next) {
+		if (edge == null)
+			throw new IllegalArgumentException(
+					"Illegal 'edge' argument in LoChild(Edge, Edge): " + edge);
+		if (next == null)
+			throw new IllegalArgumentException(
+					"Illegal 'next' argument in LoChild(Edge, Edge): " + next);
+		this.edge = edge;
+		this.next = next;
+		assert invariant() : "Illegal state in LoChild(Edge, Edge)";
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
+	/**
+	 * @param edge
+	 *            the edge
+	 * @param next
+	 *            the next
 	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((edge == null) ? 0 : edge.hashCode());
-		result = prime * result + ((next == null) ? 0 : next.hashCode());
-		return result;
+	public LoChild(Edge edge, Terminal next) {
+		if (edge == null)
+			throw new IllegalArgumentException(
+					"Illegal 'edge' argument in LoChild(Edge, Terminal): "
+							+ edge);
+		if (next == null)
+			throw new IllegalArgumentException(
+					"Illegal 'next' argument in LoChild(Edge, Terminal): "
+							+ next);
+		this.edge = edge;
+		this.next = next;
+		assert invariant() : "Illegal state in LoChild(Edge, Terminal)";
 	}
 
 	/*
@@ -61,48 +85,6 @@ public class LoChild {
 	}
 
 	/**
-	 * The edge.
-	 */
-	private Edge edge;
-
-	/**
-	 * The next.
-	 */
-	private Bind next;
-
-	/**
-	 * @param edge
-	 *            the edge
-	 * @param next
-	 *            the next
-	 */
-	public LoChild(Edge edge, Edge next) {
-		if (edge == null)
-			throw new IllegalArgumentException("Illegal 'edge' argument in LoChild(Edge, Edge): " + edge);
-		if (next == null)
-			throw new IllegalArgumentException("Illegal 'next' argument in LoChild(Edge, Edge): " + next);
-		this.edge = edge;
-		this.next = next;
-		assert invariant() : "Illegal state in LoChild(Edge, Edge)";
-	}
-
-	/**
-	 * @param edge
-	 *            the edge
-	 * @param next
-	 *            the next
-	 */
-	public LoChild(Edge edge, Terminal next) {
-		if (edge == null)
-			throw new IllegalArgumentException("Illegal 'edge' argument in LoChild(Edge, Terminal): " + edge);
-		if (next == null)
-			throw new IllegalArgumentException("Illegal 'next' argument in LoChild(Edge, Terminal): " + next);
-		this.edge = edge;
-		this.next = next;
-		assert invariant() : "Illegal state in LoChild(Edge, Terminal)";
-	}
-
-	/**
 	 * @return the edge
 	 */
 	public Edge getEdge() {
@@ -120,6 +102,14 @@ public class LoChild {
 	}
 
 	/**
+	 * @return the next
+	 */
+	public Bind getNext() {
+		assert invariant() : "Illegal state in LoChild.getNext()";
+		return next;
+	}
+
+	/**
 	 * @return the node
 	 */
 	public Node getNode() {
@@ -129,11 +119,26 @@ public class LoChild {
 	}
 
 	/**
-	 * @return the next
+	 * @return the prob
 	 */
-	public Bind getNext() {
-		assert invariant() : "Illegal state in LoChild.getNext()";
-		return next;
+	public double getProb() {
+		double result = 1.0 - edge.getProb();
+		assert invariant() : "Illegal state in HiChild.getProb()";
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((edge == null) ? 0 : edge.hashCode());
+		result = prime * result + ((next == null) ? 0 : next.hashCode());
+		return result;
 	}
 
 	/**
@@ -141,6 +146,16 @@ public class LoChild {
 	 */
 	private boolean invariant() {
 		return (edge != null && next != null);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "LoChild [edge=" + edge + ", next=" + next + "]";
 	}
 
 }

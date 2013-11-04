@@ -25,6 +25,7 @@ public class App {
 		reasoner.insert(Factory.createEdge("C", "D", 0.5));
 		reasoner.saveDot("graph", Factory.createGoal("A", "D"));
 		reasoner.execute(Factory.createGoal("A", "D"));
+		reasoner.saveBDD("bdd", Factory.createGoal("A", "D"));
 
 	}
 

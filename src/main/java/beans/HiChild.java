@@ -27,9 +27,11 @@ public class HiChild {
 	 */
 	public HiChild(Edge edge, Edge next) {
 		if (edge == null)
-			throw new IllegalArgumentException("Illegal 'edge' argument in HiChild(Edge, Edge): " + edge);
+			throw new IllegalArgumentException(
+					"Illegal 'edge' argument in HiChild(Edge, Edge): " + edge);
 		if (next == null)
-			throw new IllegalArgumentException("Illegal 'next' argument in HiChild(Edge, Edge): " + next);
+			throw new IllegalArgumentException(
+					"Illegal 'next' argument in HiChild(Edge, Edge): " + next);
 		this.edge = edge;
 		this.next = next;
 		assert invariant() : "Illegal state in HiChild(Edge, Edge)";
@@ -43,9 +45,13 @@ public class HiChild {
 	 */
 	public HiChild(Edge edge, Terminal next) {
 		if (edge == null)
-			throw new IllegalArgumentException("Illegal 'edge' argument in HiChild(Edge, Terminal): " + edge);
+			throw new IllegalArgumentException(
+					"Illegal 'edge' argument in HiChild(Edge, Terminal): "
+							+ edge);
 		if (next == null)
-			throw new IllegalArgumentException("Illegal 'next' argument in HiChild(Edge, Terminal): " + next);
+			throw new IllegalArgumentException(
+					"Illegal 'next' argument in HiChild(Edge, Terminal): "
+							+ next);
 		this.edge = edge;
 		this.next = next;
 		assert invariant() : "Illegal state in HiChild(Edge, Terminal)";
@@ -109,6 +115,15 @@ public class HiChild {
 	public Node getNode() {
 		Node result = edge.getTail();
 		assert invariant() : "Illegal state in HiChild.getNode()";
+		return result;
+	}
+
+	/**
+	 * @return the prob
+	 */
+	public double getProb() {
+		double result = edge.getProb();
+		assert invariant() : "Illegal state in HiChild.getProb()";
 		return result;
 	}
 

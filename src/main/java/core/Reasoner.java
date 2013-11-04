@@ -22,6 +22,8 @@ import org.drools.runtime.conf.ClockTypeOption;
 import beans.Clear;
 import beans.Edge;
 import beans.Goal;
+import beans.HiChild;
+import beans.LoChild;
 import beans.Terminal;
 
 /**
@@ -39,21 +41,27 @@ public class Reasoner {
 	 * 
 	 */
 	public Reasoner() {
-		KnowledgeBuilder builder = KnowledgeBuilderFactory.newKnowledgeBuilder();
-		builder.add(ResourceFactory.newClassPathResource("Definitions.drl"), ResourceType.DRL);
-		builder.add(ResourceFactory.newClassPathResource("Clear.drl"), ResourceType.DRL);
-		builder.add(ResourceFactory.newClassPathResource("Convert.drl"), ResourceType.DRL);
+		KnowledgeBuilder builder = KnowledgeBuilderFactory
+				.newKnowledgeBuilder();
+		builder.add(ResourceFactory.newClassPathResource("Definitions.drl"),
+				ResourceType.DRL);
+		builder.add(ResourceFactory.newClassPathResource("Clear.drl"),
+				ResourceType.DRL);
+		builder.add(ResourceFactory.newClassPathResource("Convert.drl"),
+				ResourceType.DRL);
 		KnowledgeBuilderErrors errors = builder.getErrors();
 		if (errors.size() > 0) {
 			for (KnowledgeBuilderError error : errors)
 				System.err.println(error);
 			throw new IllegalArgumentException("Could not parse knowledge.");
 		}
-		KnowledgeBaseConfiguration baseCfg = KnowledgeBaseFactory.newKnowledgeBaseConfiguration();
+		KnowledgeBaseConfiguration baseCfg = KnowledgeBaseFactory
+				.newKnowledgeBaseConfiguration();
 		baseCfg.setOption(EventProcessingOption.STREAM);
 		KnowledgeBase base = KnowledgeBaseFactory.newKnowledgeBase(baseCfg);
 		base.addKnowledgePackages(builder.getKnowledgePackages());
-		KnowledgeSessionConfiguration sessionCfg = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
+		KnowledgeSessionConfiguration sessionCfg = KnowledgeBaseFactory
+				.newKnowledgeSessionConfiguration();
 		sessionCfg.setOption(ClockTypeOption.get("realtime"));
 		session = base.newStatefulKnowledgeSession(sessionCfg, null);
 		session.insert(Terminal.ZERO);
@@ -73,7 +81,8 @@ public class Reasoner {
 	 */
 	public void insert(Edge edge) {
 		if (edge == null)
-			throw new IllegalArgumentException("Illegal 'edge' argument in Reasoner.insert(Edge): " + edge);
+			throw new IllegalArgumentException(
+					"Illegal 'edge' argument in Reasoner.insert(Edge): " + edge);
 		session.insert(edge);
 		assert invariant() : "Illegal state in Reasoner.insert(Edge)";
 	}
@@ -83,7 +92,9 @@ public class Reasoner {
 	 */
 	public void execute(Goal goal) {
 		if (goal == null)
-			throw new IllegalArgumentException("Illegal 'goal' argument in Reasoner.execute(Goal): " + goal);
+			throw new IllegalArgumentException(
+					"Illegal 'goal' argument in Reasoner.execute(Goal): "
+							+ goal);
 		session.insert(Clear.getInstance());
 		session.fireAllRules();
 		session.insert(goal);
@@ -91,12 +102,68 @@ public class Reasoner {
 		assert invariant() : "Illegal state in Reasoner.execute()";
 	}
 
+	public void saveBDD(String filename, Goal goal) {
+		if (filename == null || (filename = filename.trim()).isEmpty())
+			throw new IllegalArgumentException(
+					"Illegal 'filename' argument in Reasoner.saveBDD(String, Goal): "
+							+ filename);
+		if (goal == null)
+			throw new IllegalArgumentException(
+					"Illegal 'goal' argument in Reasoner.saveBDD(Goal): "
+							+ goal);
+		session.insert(Clear.getInstance());
+		session.fireAllRules();
+		session.insert(goal);
+		try {
+			filename += ".gv";
+			PrintWriter writer = new PrintWriter(filename);
+
+			writer.append("digraph G {\n");
+			writer.append("\tnode [shape=box, style=filled, fillcolor=lightgrey, fontname=Helvetica];\n");
+			writer.append("\tsubgraph _terminals {\n");
+			writer.append("\t\trank=same;\n");
+			writer.append("\t\t0 1;\n");
+			writer.append("\t}\n");
+			writer.append("\tnode [shape=circle, style=hollow, fontname=Helvetica];\n");
+			for (Object o : session.getObjects()) {
+				if (o instanceof HiChild) {
+					HiChild h = (HiChild) o;
+					writer.append("\t" + h.getEdge().getTail().getName()
+							+ " -> " + h.getEdge().getHead().getName()
+							+ " [style=solid, label=\"" + h.getProb()
+							+ "\"];\n");
+				}
+				if (o instanceof LoChild) {
+					LoChild l = (LoChild) o;
+					writer.append("\t" + l.getEdge().getTail().getName()
+							+ " -> " + l.getEdge().getHead().getId()
+							+ " [style=dashed, label=\"" + l.getProb()
+							+ "\"];\n");
+				}
+			}
+			writer.append("}\n");
+
+			writer.flush();
+			writer.close();
+			String[] cmd = { "/usr/local/bin/dot", "-Tpdf", filename, "-o",
+					filename.substring(0, filename.length() - 3) + ".pdf" };
+			Runtime.getRuntime().exec(cmd);
+		} catch (Exception e) {
+			System.err.println("I couldn't write " + filename + ".gv!");
+			e.printStackTrace();
+		}
+		assert invariant() : "Illegal state in Reasoner.saveBDD()";
+	}
+
 	public void saveDot(String filename, Goal goal) {
 		if (filename == null || (filename = filename.trim()).isEmpty())
-			throw new IllegalArgumentException("Illegal 'filename' argument in Reasoner.saveDot(String, Goal): "
-					+ filename);
+			throw new IllegalArgumentException(
+					"Illegal 'filename' argument in Reasoner.saveDot(String, Goal): "
+							+ filename);
 		if (goal == null)
-			throw new IllegalArgumentException("Illegal 'goal' argument in Reasoner.execute(Goal): " + goal);
+			throw new IllegalArgumentException(
+					"Illegal 'goal' argument in Reasoner.saveDot(Goal): "
+							+ goal);
 		session.insert(Clear.getInstance());
 		session.fireAllRules();
 		session.insert(goal);
@@ -108,17 +175,20 @@ public class Reasoner {
 			writer.append("\tnode [shape=doublecircle, fontname=Helvetica]");
 			for (Object o : session.getObjects())
 				if (o instanceof Goal)
-					writer.append("; \"" + ((Goal) o).getTarget().getName() + "\"");
+					writer.append("; \"" + ((Goal) o).getTarget().getName()
+							+ "\"");
 			writer.append(";\n");
 			writer.append("\tnode [shape=circle, fontname=Helvetica];\n");
 			for (Object o : session.getObjects())
 				if (o instanceof Goal)
-					writer.append("\t_start -> \"" + ((Goal) o).getSource().getName() + "\";\n");
+					writer.append("\t_start -> \""
+							+ ((Goal) o).getSource().getName() + "\";\n");
 			// writer.append("\tnode [shape=circle,color=black,style=hollow];\n");
 			for (Object o : session.getObjects())
 				if (o instanceof Edge) {
 					Edge e = (Edge) o;
-					writer.append("\t\"" + e.getTail().getName() + "\" -> \"" + e.getHead().getName() + "\" [label=\""
+					writer.append("\t\"" + e.getTail().getName() + "\" -> \""
+							+ e.getHead().getName() + "\" [label=\""
 							+ e.getId() + ": " + e.getProb() + "\"];\n");
 				}
 			writer.append("}\n");
@@ -128,10 +198,10 @@ public class Reasoner {
 					filename.substring(0, filename.length() - 3) + ".pdf" };
 			Runtime.getRuntime().exec(cmd);
 		} catch (Exception e) {
-			System.err.println("I couldn't write " + filename + "!");
+			System.err.println("I couldn't write " + filename + ".gv!");
 			e.printStackTrace();
 		}
-		assert invariant() : "Illegal state in Reasoner.execute()";
+		assert invariant() : "Illegal state in Reasoner.saveDot()";
 	}
 
 }

@@ -3,9 +3,9 @@ digraph G {
 	node [shape=doublecircle, fontname=Helvetica]; "D";
 	node [shape=circle, fontname=Helvetica];
 	_start -> "A";
-	"A" -> "B" [label="0: 0.1"];
-	"C" -> "D" [label="4: 0.5"];
 	"B" -> "D" [label="3: 0.4"];
+	"A" -> "B" [label="0: 0.1"];
 	"A" -> "C" [label="1: 0.2"];
+	"C" -> "D" [label="4: 0.5"];
 	"B" -> "C" [label="2: 0.3"];
 }
