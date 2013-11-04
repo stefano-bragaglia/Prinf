@@ -1,0 +1,40 @@
+package beans;
+
+import beand.BinD;
+import beans.Clear;
+import beans.Edge;
+import beans.Goal;
+import beans.Mark;
+import beans.Node;
+
+rule "Clear - Token"
+salience 2
+when
+	Clear()
+	$t: Token();
+then
+	retract( $t );
+end
+
+rule "Clear - Goal"
+salience 2
+when
+	Clear()
+	$g: Goal();
+then
+	retract( $g );
+end
+
+rule "Clear - Clear over"
+salience 1
+when
+	$c: Clear()
+then
+	retract( $c );
+end
+
+rule "Test"
+when
+then
+	System.out.println("I'm alive!");
+end
