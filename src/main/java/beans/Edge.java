@@ -161,7 +161,7 @@ public class Edge implements Bind {
 	 */
 	@Override
 	public String toString() {
-		String result = "Edge [id=" + id + ", head=" + head + ", tail=" + tail + ", prob=" + prob + "]";
+		String result = "Edge [id=" + id + ", tail=" + tail + ", head=" + head + ", prob=" + prob + "]";
 		assert invariant() : "Illegal state in Edge.toString()";
 		return result;
 	}

@@ -13,7 +13,7 @@ then
 	insert(mark);
 end
 
-rule "Flag"
+rule "Flag LoChild"
 salience Integer.MAX_VALUE
 when
 	$c: LoChild()
@@ -21,8 +21,16 @@ then
 	System.out.println($c);
 end
 
+rule "Flag HiChild"
+salience Integer.MAX_VALUE
+when
+	$c: HiChild()
+then
+	System.out.println($c);
+end
 
-rule "qwerty 1"
+
+rule "Another alternative from a node"
 no-loop
 when
 	Mark( $n: node )
@@ -40,7 +48,7 @@ then
 end
 
 
-rule "qwerty 2"
+rule "No alternative from a node"
 no-loop
 when
 	Mark( $n: node )
@@ -51,4 +59,34 @@ when
 then
 	// System.out.println($e);
 	insert( new LoChild($e, Terminal.ZERO) );
+end
+
+
+rule "qwerty 1"
+no-loop
+when
+	LoChild( $e: edge, $i: id )
+	not LoChild( id > $i ) 
+	not HiChild( edge == $e )
+	
+	Edge( this == $e, $n: head )
+	not Goal( target == $n )
+then
+	System.out.println($n);
+	insert( new Mark($n) );	
+end
+
+
+rule "qwerty 2"
+no-loop
+when
+	LoChild( $e: edge, $i: id )
+	not LoChild( id > $i ) 
+	not HiChild( edge == $e )
+	
+	Edge( this == $e, $n: head )
+	Goal( target == $n )
+then
+	System.out.println($e);
+	insert( new HiChild($e, Terminal.ONE) );
 end
