@@ -22,6 +22,7 @@ import org.drools.runtime.conf.ClockTypeOption;
 import beans.Clear;
 import beans.Edge;
 import beans.Goal;
+import beans.Terminal;
 
 /**
  * @author stefano
@@ -32,36 +33,31 @@ public class Reasoner {
 	/**
 	 * 
 	 */
-	private static final String DEFINITIONS = "BDDs.drl";
-
-	/**
-	 * 
-	 */
 	private StatefulKnowledgeSession session;
 
 	/**
 	 * 
 	 */
 	public Reasoner() {
-		KnowledgeBuilder builder = KnowledgeBuilderFactory
-				.newKnowledgeBuilder();
-		builder.add(ResourceFactory.newClassPathResource(DEFINITIONS),
-				ResourceType.DRL);
+		KnowledgeBuilder builder = KnowledgeBuilderFactory.newKnowledgeBuilder();
+		builder.add(ResourceFactory.newClassPathResource("Definitions.drl"), ResourceType.DRL);
+		builder.add(ResourceFactory.newClassPathResource("Clear.drl"), ResourceType.DRL);
+		builder.add(ResourceFactory.newClassPathResource("Convert.drl"), ResourceType.DRL);
 		KnowledgeBuilderErrors errors = builder.getErrors();
 		if (errors.size() > 0) {
 			for (KnowledgeBuilderError error : errors)
 				System.err.println(error);
 			throw new IllegalArgumentException("Could not parse knowledge.");
 		}
-		KnowledgeBaseConfiguration baseCfg = KnowledgeBaseFactory
-				.newKnowledgeBaseConfiguration();
+		KnowledgeBaseConfiguration baseCfg = KnowledgeBaseFactory.newKnowledgeBaseConfiguration();
 		baseCfg.setOption(EventProcessingOption.STREAM);
 		KnowledgeBase base = KnowledgeBaseFactory.newKnowledgeBase(baseCfg);
 		base.addKnowledgePackages(builder.getKnowledgePackages());
-		KnowledgeSessionConfiguration sessionCfg = KnowledgeBaseFactory
-				.newKnowledgeSessionConfiguration();
+		KnowledgeSessionConfiguration sessionCfg = KnowledgeBaseFactory.newKnowledgeSessionConfiguration();
 		sessionCfg.setOption(ClockTypeOption.get("realtime"));
 		session = base.newStatefulKnowledgeSession(sessionCfg, null);
+		session.insert(Terminal.ZERO);
+		session.insert(Terminal.ONE);
 		assert invariant() : "Illegal state in Reasoner()";
 	}
 
@@ -77,8 +73,7 @@ public class Reasoner {
 	 */
 	public void insert(Edge edge) {
 		if (edge == null)
-			throw new IllegalArgumentException(
-					"Illegal 'edge' argument in Reasoner.insert(Edge): " + edge);
+			throw new IllegalArgumentException("Illegal 'edge' argument in Reasoner.insert(Edge): " + edge);
 		session.insert(edge);
 		assert invariant() : "Illegal state in Reasoner.insert(Edge)";
 	}
@@ -88,9 +83,7 @@ public class Reasoner {
 	 */
 	public void execute(Goal goal) {
 		if (goal == null)
-			throw new IllegalArgumentException(
-					"Illegal 'goal' argument in Reasoner.execute(Goal): "
-							+ goal);
+			throw new IllegalArgumentException("Illegal 'goal' argument in Reasoner.execute(Goal): " + goal);
 		session.insert(Clear.getInstance());
 		session.fireAllRules();
 		session.insert(goal);
@@ -100,13 +93,10 @@ public class Reasoner {
 
 	public void saveDot(String filename, Goal goal) {
 		if (filename == null || (filename = filename.trim()).isEmpty())
-			throw new IllegalArgumentException(
-					"Illegal 'filename' argument in Reasoner.saveDot(String, Goal): "
-							+ filename);
+			throw new IllegalArgumentException("Illegal 'filename' argument in Reasoner.saveDot(String, Goal): "
+					+ filename);
 		if (goal == null)
-			throw new IllegalArgumentException(
-					"Illegal 'goal' argument in Reasoner.execute(Goal): "
-							+ goal);
+			throw new IllegalArgumentException("Illegal 'goal' argument in Reasoner.execute(Goal): " + goal);
 		session.insert(Clear.getInstance());
 		session.fireAllRules();
 		session.insert(goal);
@@ -118,20 +108,17 @@ public class Reasoner {
 			writer.append("\tnode [shape=doublecircle, fontname=Helvetica]");
 			for (Object o : session.getObjects())
 				if (o instanceof Goal)
-					writer.append("; \"" + ((Goal) o).getTarget().getName()
-							+ "\"");
+					writer.append("; \"" + ((Goal) o).getTarget().getName() + "\"");
 			writer.append(";\n");
 			writer.append("\tnode [shape=circle, fontname=Helvetica];\n");
 			for (Object o : session.getObjects())
 				if (o instanceof Goal)
-					writer.append("\t_start -> \""
-							+ ((Goal) o).getSource().getName() + "\";\n");
+					writer.append("\t_start -> \"" + ((Goal) o).getSource().getName() + "\";\n");
 			// writer.append("\tnode [shape=circle,color=black,style=hollow];\n");
 			for (Object o : session.getObjects())
 				if (o instanceof Edge) {
 					Edge e = (Edge) o;
-					writer.append("\t\"" + e.getTail().getName() + "\" -> \""
-							+ e.getHead().getName() + "\" [label=\""
+					writer.append("\t\"" + e.getTail().getName() + "\" -> \"" + e.getHead().getName() + "\" [label=\""
 							+ e.getId() + ": " + e.getProb() + "\"];\n");
 				}
 			writer.append("}\n");

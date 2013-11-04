@@ -7,7 +7,7 @@ package beans;
  * @author stefano
  * 
  */
-public class Edge {
+public class Edge implements Bind {
 
 	/**
 	 * The size.
@@ -51,17 +51,11 @@ public class Edge {
 	 */
 	public Edge(Node tail, Node head, double prob) {
 		if (tail == null)
-			throw new IllegalArgumentException(
-					"Illegal 'tail' argument in Edge(Node, Node, double): "
-							+ tail);
+			throw new IllegalArgumentException("Illegal 'tail' argument in Edge(Node, Node, double): " + tail);
 		if (head == null)
-			throw new IllegalArgumentException(
-					"Illegal 'head' argument in Edge(Node, Node, double): "
-							+ head);
+			throw new IllegalArgumentException("Illegal 'head' argument in Edge(Node, Node, double): " + head);
 		if (prob <= 0.0 || prob > 1.0)
-			throw new IllegalArgumentException(
-					"Illegal 'prob' argument in Edge(Node, Node, double): "
-							+ prob);
+			throw new IllegalArgumentException("Illegal 'prob' argument in Edge(Node, Node, double): " + prob);
 		this.head = head;
 		this.id = size++;
 		this.prob = prob;
@@ -90,8 +84,7 @@ public class Edge {
 			return false;
 		if (id != other.id)
 			return false;
-		if (Double.doubleToLongBits(prob) != Double
-				.doubleToLongBits(other.prob))
+		if (Double.doubleToLongBits(prob) != Double.doubleToLongBits(other.prob))
 			return false;
 		if (tail == null) {
 			if (other.tail != null)
@@ -109,9 +102,12 @@ public class Edge {
 		return head;
 	}
 
-	/**
-	 * @return the id
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see beans.Bind#getId()
 	 */
+	@Override
 	public long getId() {
 		assert invariant() : "Illegal state in Edge.getId()";
 		return id;
@@ -165,8 +161,7 @@ public class Edge {
 	 */
 	@Override
 	public String toString() {
-		String result = "Edge [id=" + id + ", head=" + head + ", tail=" + tail
-				+ ", prob=" + prob + "]";
+		String result = "Edge [id=" + id + ", head=" + head + ", tail=" + tail + ", prob=" + prob + "]";
 		assert invariant() : "Illegal state in Edge.toString()";
 		return result;
 	}

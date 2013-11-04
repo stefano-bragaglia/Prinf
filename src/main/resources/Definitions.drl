@@ -1,0 +1,10 @@
+package beans;
+
+import beans.*;
+
+rule "Test"
+salience Integer.MAX_VALUE
+when
+then
+	System.out.println("I'm alive!");
+end

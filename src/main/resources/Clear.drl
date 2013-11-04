@@ -1,0 +1,38 @@
+package beans;
+
+import beans.*;
+
+rule "Clear over"
+salience 1
+when
+	$c: Clear()
+then
+	retract( $c );
+end
+
+rule "Clear - Goal"
+salience 2
+when
+	Clear()
+	$o: Goal()
+then
+	retract( $o );
+end
+
+rule "Clear - HiChild"
+salience 2
+when
+	Clear()
+	$o: HiChild()
+then
+	retract( $o );
+end
+
+rule "Clear - Mark"
+salience 2
+when
+	Clear()
+	$o: Mark()
+then
+	retract( $o );
+end

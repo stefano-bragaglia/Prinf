@@ -1,0 +1,54 @@
+package beans;
+
+import beans.*;
+
+rule "Start me up!"
+no-loop
+when
+	Goal( $s: source )
+	not Mark( node == $s )
+then
+	Mark mark = new Mark($s);
+	// System.out.println($s);
+	insert(mark);
+end
+
+rule "Flag"
+salience Integer.MAX_VALUE
+when
+	$c: LoChild()
+then
+	System.out.println($c);
+end
+
+
+rule "qwerty 1"
+no-loop
+when
+	Mark( $n: node )
+	
+	LoChild( $f: edge, node == $n, $i: id )
+	not LoChild( node == $n, id < $i )
+	
+	$e: Edge( tail == $n, $ii: id < $i )
+	not Edge( tail == $n, id < $i, id > $ii )
+	
+then
+	// System.out.println($e);
+	// System.out.println($f);
+	insert( new LoChild($e, $f) );
+end
+
+
+rule "qwerty 2"
+no-loop
+when
+	Mark( $n: node )
+	
+	$e: Edge( tail == $n, $i: id )
+	not LoChild( edge == $e )
+	not Edge( tail == $n, id > $i )		
+then
+	// System.out.println($e);
+	insert( new LoChild($e, Terminal.ZERO) );
+end
